@@ -4,10 +4,40 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Dashboard' }} — RestoPOS</title>
+    <title>{{ $title ?? 'Dashboard' }} — RestroFry</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    // Dark-themed Swal preset used everywhere
+    window.Swal = Swal.mixin({
+        background: '#111827',
+        color: '#f9fafb',
+        confirmButtonColor: '#f97316',
+        cancelButtonColor: '#374151',
+        buttonsStyling: true,
+        customClass: {
+            popup:         'swal-dark-popup',
+            confirmButton: 'swal-confirm',
+            cancelButton:  'swal-cancel',
+        }
+    });
+
+    // Global delete confirm helper — call from onclick
+    window.confirmDelete = function(form) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+        }).then(result => { if (result.isConfirmed) form.submit(); });
+        return false;
+    };
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased min-h-screen" x-data="{ activeMenu: null, userMenu: false }">
@@ -23,7 +53,7 @@
                           d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                 </svg>
             </div>
-            <span class="text-white font-semibold text-sm">RestoPOS</span>
+            <span class="text-white font-semibold text-sm">RestroFry</span>
         </a>
 
         {{-- Nav Items --}}
@@ -92,10 +122,19 @@
                     </svg>
                 </button>
                 <div x-show="userMenu" @click.outside="userMenu = false" x-transition
-                     class="absolute right-0 top-full mt-2 w-44 bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden">
+                     class="absolute right-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden">
                     <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Profile
+                    </a>
+                    <a href="{{ route('settings.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        POS Settings
+                    </a>
                         </svg>
                         Profile
                     </a>
@@ -129,8 +168,10 @@
             <div>
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Orders</p>
                 <div class="space-y-1">
-                    <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Orders</a>
-                    <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Payment</a>
+                    <a href="{{ route('pos.indexOrder') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Orders</a>
+                    {{-- <a href="{{ route('pos.terminal') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">POS Terminal</a> --}}
+                    
+                    <a href="{{ route('pos.payments') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Payment</a>
                     <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Customer</a>
                 </div>
             </div>
@@ -142,6 +183,7 @@
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Products</p>
                 <div class="space-y-1">
                     <a href="{{ route('products.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Products</a>
+                    
                     <a href="{{ route('categories.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Category</a>
                 </div>
             </div>

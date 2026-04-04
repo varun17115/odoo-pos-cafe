@@ -26,4 +26,22 @@
     .sidebar-link.active {
         @apply bg-orange-500 text-white;
     }
+
+    /* SweetAlert2 dark theme overrides */
+    .swal-dark-popup {
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 1rem !important;
+    }
+    .swal2-title { color: #f9fafb !important; font-size: 1.1rem !important; }
+    .swal2-html-container { color: #9ca3af !important; }
+    .swal2-icon.swal2-warning { border-color: #f97316 !important; color: #f97316 !important; }
+    .swal2-icon.swal2-error { border-color: #ef4444 !important; color: #ef4444 !important; }
+    .swal2-icon.swal2-success { border-color: #22c55e !important; color: #22c55e !important; }
+    .swal2-icon.swal2-success [class^=swal2-success-line] { background: #22c55e !important; }
+    .swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(34,197,94,0.3) !important; }
+    .swal-confirm, .swal-cancel {
+        border-radius: 0.75rem !important;
+        font-size: 0.875rem !important;
+        padding: 0.6rem 1.25rem !important;
+    }
 }

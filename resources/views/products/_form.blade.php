@@ -81,7 +81,7 @@
                         <label class="block text-xs text-gray-500 mb-1">Sale Price <span class="text-red-400">*</span></label>
                         <div class="flex gap-2">
                             <div class="relative flex-1">
-                                <span class="absolute inset-y-0 left-3 flex items-center text-gray-500 text-sm">$</span>
+                                <span class="absolute inset-y-0 left-3 flex items-center text-gray-500 text-sm">₹</span>
                                 <input type="number" name="price" step="0.01" min="0"
                                        value="{{ old('price', $product->price ?? '0.00') }}" required
                                        class="w-full pl-7 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
@@ -227,7 +227,7 @@
                             {{-- Extra price --}}
                             <td class="px-4 py-2.5">
                                 <div class="relative">
-                                    <span class="absolute inset-y-0 left-2 flex items-center text-gray-500 text-xs">$</span>
+                                    <span class="absolute inset-y-0 left-2 flex items-center text-gray-500 text-xs">₹</span>
                                     <input type="number" :name="`variants[${index}][price]`"
                                            x-model="variant.price"
                                            step="0.01" min="0"

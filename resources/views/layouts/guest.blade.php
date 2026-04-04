@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'RestoPOS') }} — Admin</title>
+    <title>{{ config('app.name', 'RestroFry') }} — Admin</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen font-sans antialiased" style="background-color:#0a0a0a;">
@@ -27,7 +28,7 @@
                           d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                 </svg>
             </div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">RestoPOS</h1>
+            <h1 class="text-3xl font-bold text-white tracking-tight">RestroFry</h1>
             <p class="text-gray-400 text-sm mt-1">Restaurant Management System</p>
         </div>
 
@@ -36,7 +37,7 @@
             {{ $slot }}
         </div>
 
-        <p class="mt-6 text-gray-600 text-xs">&copy; {{ date('Y') }} RestoPOS. All rights reserved.</p>
+        <p class="mt-6 text-gray-600 text-xs">&copy; {{ date('Y') }} RestroFry. All rights reserved.</p>
     </div>
 </body>
 </html>

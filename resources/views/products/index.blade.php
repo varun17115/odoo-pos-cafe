@@ -96,7 +96,7 @@
                                 <span class="text-white font-medium">{{ $product->name }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-gray-300">${{ number_format($product->price, 2) }}</td>
+                        <td class="px-4 py-3 text-gray-300">₹{{ number_format($product->price, 2) }}</td>
                         <td class="px-4 py-3 text-gray-400">{{ $product->tax > 0 ? $product->tax.'%' : '—' }}</td>
                         <td class="px-4 py-3 text-gray-400">{{ $product->unit ?: '—' }}</td>
                         <td class="px-4 py-3">
@@ -107,7 +107,7 @@
                                         $price = $variant->price + $product->price;
                                     @endphp
                                     <span class="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs rounded-md border border-gray-700">
-                                        {{ $variant->name }}@if($variant->price) <span class="text-orange-400">${{ number_format($price, 2)   }}</span>@endif
+                                        {{ $variant->name }}@if($variant->price) <span class="text-orange-400">₹{{ number_format($price, 2)   }}</span>@endif
                                     </span>
                                     @endforeach
                                 </div>
@@ -138,7 +138,7 @@
                                     </svg>
                                 </a>
                                 <form method="POST" action="{{ route('products.destroy', $product) }}"
-                                      onsubmit="return confirm('Delete {{ addslashes($product->name) }}?')">
+                                      onsubmit="return confirmDelete(this)">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-1.5 text-gray-500 hover:text-red-400 hover:bg-gray-700 rounded-lg transition">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

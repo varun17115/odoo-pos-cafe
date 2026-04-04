@@ -90,7 +90,7 @@
                             {{-- Delete --}}
                             <td class="px-3 py-2.5">
                                 <form method="POST" action="{{ route('categories.destroy', $category) }}"
-                                      onsubmit="return confirm('Delete {{ addslashes($category->name) }}?')">
+                                      onsubmit="return confirmDelete(this)">
                                     @csrf @method('DELETE')
                                     <button type="submit"
                                             class="p-1 text-gray-600 hover:text-red-400 transition">
