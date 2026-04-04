@@ -11,11 +11,40 @@
             linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
         background-size: 40px 40px;
     }
+
     input[type="text"],
     input[type="email"],
     input[type="password"],
     input[type="number"] {
         @apply text-white;
+    }
+
+    /* Light theme overrides */
+    html:not(.dark) body {
+        background-color: #f1f5f9;
+        background-image:
+            linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        color: #111827;
+    }
+    html:not(.dark) nav { background-color: #fff !important; border-color: #e2e8f0 !important; }
+    html:not(.dark) .bg-gray-900 { background-color: #fff !important; }
+    html:not(.dark) .bg-gray-800 { background-color: #f1f5f9 !important; }
+    html:not(.dark) .border-gray-800 { border-color: #e2e8f0 !important; }
+    html:not(.dark) .border-gray-700 { border-color: #cbd5e1 !important; }
+    html:not(.dark) .text-white { color: #111827 !important; }
+    html:not(.dark) .text-gray-300 { color: #374151 !important; }
+    html:not(.dark) .text-gray-400 { color: #6b7280 !important; }
+    html:not(.dark) .text-gray-500 { color: #9ca3af !important; }
+    html:not(.dark) .bg-gray-950 { background-color: #f1f5f9 !important; }
+    html:not(.dark) .bg-gray-700 { background-color: #e2e8f0 !important; }
+    html:not(.dark) input,
+    html:not(.dark) select,
+    html:not(.dark) textarea {
+        background-color: #f8fafc !important;
+        border-color: #cbd5e1 !important;
+        color: #111827 !important;
     }
 }
 

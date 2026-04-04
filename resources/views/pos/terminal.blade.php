@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,7 +22,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-950 text-white font-sans antialiased" style="height:100vh;overflow:hidden;">
+<body class="bg-gray-950 text-white font-sans antialiased" style="height:100vh;overflow:hidden;background-color:#030712!important;color:#fff!important;">
 
 <div x-data="posTerminal()" x-init="init()" class="flex flex-col h-screen">
 
@@ -43,10 +43,36 @@
                     class="px-4 py-1.5 rounded-lg text-sm font-medium transition">Table</button>
             <button @click="tab='register'" :class="tab==='register' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
                     class="px-4 py-1.5 rounded-lg text-sm font-medium transition">Register</button>
-            <button @click="tab='orders'; loadOrders()" :class="tab==='orders' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
-                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition">Orders</button>
+            <button @click="tab='orders'; loadOrders(); newOrdersCount = 0"
+                    :class="tab==='orders' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
+                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition relative">
+                Orders
+                <span x-show="newOrdersCount > 0"
+                      class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold"
+                      x-text="newOrdersCount > 9 ? '9+' : newOrdersCount"></span>
+            </button>
         </div>
         <div class="flex items-center gap-2">
+            {{-- Reload Data --}}
+            <button @click="reloadData()" title="Reload Data"
+                    class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-2.5 py-1 rounded-lg transition">
+                <svg class="w-3.5 h-3.5" :class="reloading ? 'animate-spin' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Reload
+            </button>
+
+            {{-- Go to Back-end --}}
+            <a href="{{ route('settings.index') }}"
+               class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-2.5 py-1 rounded-lg transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Back-end
+            </a>
+
+            @if(auth()->user()?->isAdmin())
+            <span class="text-gray-600 text-xs">|</span>
             <span class="text-gray-500 text-xs">Session #{{ $session->id }}</span>
             <form method="POST" action="{{ route('pos.session.close', $session) }}">
                 @csrf
@@ -54,6 +80,7 @@
                     Close Session
                 </button>
             </form>
+            @endif
         </div>
     </div>
 
@@ -321,6 +348,20 @@
             </div>
         </div>
     </div>{{-- end main content --}}
+
+    {{-- ===== NEW ORDER TOAST ===== --}}
+    <div x-show="newOrderToast" x-transition
+         class="fixed top-14 right-4 z-50 bg-orange-500 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 max-w-xs">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm">New Self-Order!</p>
+            <p class="text-orange-100 text-xs">A customer placed an order from their table</p>
+        </div>
+        <button @click="newOrderToast = false; tab='orders'; loadOrders(); newOrdersCount = 0"
+                class="text-orange-200 hover:text-white text-xs underline flex-shrink-0">View</button>
+    </div>
 
     {{-- ===== VARIANT PICKER MODAL ===== --}}
     <div x-show="variantModalOpen" x-transition.opacity
@@ -640,6 +681,11 @@ function posTerminal() {
         // Variant picker
         variantModalOpen: false,
         variantProduct: null,
+        // New order notification
+        newOrdersCount: 0,
+        newOrderToast: false,
+        lastOrderId: 0,
+        reloading: false,
 
         get subtotal() {
             return this.orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -678,6 +724,8 @@ function posTerminal() {
                 await this.loadFloor(floors[0].id);
             }
             await this.loadProducts();
+            // Poll for new self-orders every 15 seconds
+            setInterval(() => this.pollNewOrders(), 15000);
         },
 
         async loadFloor(floorId) {
@@ -984,6 +1032,40 @@ function posTerminal() {
             this.orderNotes = order.notes || '';
             this.selectedTable = order.table || null;
             this.tab = 'register';
+        },
+
+        async reloadData() {
+            this.reloading = true;
+            await this.loadProducts();
+            if (this.activeFloorId) await this.loadFloor(this.activeFloorId);
+            await this.loadOrders();
+            this.reloading = false;
+            Swal.fire({ icon: 'success', title: 'Data Reloaded', timer: 1000, showConfirmButton: false });
+        },
+
+        async pollNewOrders() {
+            try {
+                const resp = await fetch('/pos/orders', {
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF }
+                });
+                if (!resp.headers.get('content-type')?.includes('application/json')) return;
+                const orders = await resp.json();
+                if (!orders.length) return;
+                const latestId = Math.max(...orders.map(o => o.id));
+                if (this.lastOrderId === 0) {
+                    this.lastOrderId = latestId;
+                    return;
+                }
+                // Count new orders since last check
+                const newCount = orders.filter(o => o.id > this.lastOrderId).length;
+                if (newCount > 0) {
+                    this.newOrdersCount += newCount;
+                    this.newOrderToast = true;
+                    this.lastOrderId = latestId;
+                    // Auto-hide toast after 6 seconds
+                    setTimeout(() => { this.newOrderToast = false; }, 6000);
+                }
+            } catch(e) { console.error(e); }
         },
 
         renderTableSvg(table) {

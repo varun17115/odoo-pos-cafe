@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data x-bind:class="$store.theme.dark ? 'dark' : ''">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,6 +8,17 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('theme') !== 'light',
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('theme', this.dark ? 'dark' : 'light');
+            }
+        });
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     // Dark-themed Swal preset used everywhere
@@ -40,7 +51,7 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased min-h-screen" x-data="{ activeMenu: null, userMenu: false }">
+<body class="font-sans antialiased min-h-screen" x-data="{ activeMenu: null, userMenu: false, get dark() { return $store.theme.dark; }, toggleTheme() { $store.theme.toggle(); } }">
 
     {{-- ===== TOP NAVBAR ===== --}}
     <nav class="bg-gray-900 border-b border-gray-800 px-6 py-0 flex items-center h-12 relative z-50">
@@ -110,6 +121,18 @@
 
         {{-- Right side: user --}}
         <div class="ml-auto flex items-center gap-3">
+
+            {{-- Theme toggle --}}
+            <button @click="toggleTheme()"
+                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition"
+                    :title="dark ? 'Switch to Light' : 'Switch to Dark'">
+                <svg x-show="dark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <svg x-show="!dark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+            </button>
             <div class="relative" x-data>
                 <button @click="userMenu = !userMenu"
                         class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
@@ -211,6 +234,14 @@
                     <a href="{{ route('floors.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Manage Floors & Tables</a>
                 </div>
             </div>
+            @if(auth()->user()?->isAdmin())
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Management</p>
+                <div class="space-y-1">
+                    <a href="{{ route('users.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Users & Roles</a>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
