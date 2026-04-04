@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OrderItem extends Model
 {
     protected $fillable = [
-        'order_id', 'product_id', 'variant_id', 'name', 'price', 'quantity', 'subtotal', 'tax_rate', 'tax_amount',
+        'order_id', 'product_id', 'variant_id', 'name', 'price', 'quantity', 'done', 'subtotal', 'tax_rate', 'tax_amount',
     ];
+
+    protected $casts = ['done' => 'boolean'];
 
     public function order(): BelongsTo
     {

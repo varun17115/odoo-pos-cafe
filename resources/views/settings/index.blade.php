@@ -70,7 +70,7 @@
         </form>
 
         <div x-show="activeConfig === {{ $config->id }}" x-transition>
-            <form method="POST" action="{{ route('settings.update', $config) }}">
+            <form method="POST" action="{{ route('settings.update', $config) }}" enctype="multipart/form-data">
                 @csrf @method('PUT')
 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -194,6 +194,120 @@
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+
+                        {{-- Mobile Order --}}
+                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-5"
+                             x-data="{ selfOrdering: {{ $config->self_ordering ? 'true' : 'false' }}, orderType: '{{ $config->self_ordering_type ?? 'online_ordering' }}' }">
+
+                            <h2 class="text-white font-semibold mb-1">Mobile Order</h2>
+                            <p class="text-gray-500 text-xs mb-5">Allow customers to order from their phone via QR code</p>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                                {{-- Left: controls --}}
+                                <div class="space-y-4">
+                                    {{-- Self Ordering toggle --}}
+                                    <div class="flex items-center gap-3">
+                                        <input type="hidden" name="self_ordering" value="0" />
+                                        <input type="checkbox" name="self_ordering" value="1"
+                                               id="self_ordering_{{ $config->id }}"
+                                               x-model="selfOrdering"
+                                               {{ $config->self_ordering ? 'checked' : '' }}
+                                               class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-orange-500 focus:ring-orange-500" />
+                                        <label for="self_ordering_{{ $config->id }}" class="text-white text-sm font-medium cursor-pointer">
+                                            Self Ordering
+                                        </label>
+                                    </div>
+
+                                    {{-- Type dropdown (visible when enabled) --}}
+                                    <div x-show="selfOrdering" x-transition class="space-y-4">
+                                        <div class="relative">
+                                            <select name="self_ordering_type" x-model="orderType"
+                                                    class="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 appearance-none pr-8">
+                                                <option value="online_ordering">Online ordering</option>
+                                                <option value="qr_menu">QR Menu</option>
+                                            </select>
+                                            <svg class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        </div>
+
+                                        {{-- Links --}}
+                                        <div class="space-y-2">
+                                            @if($config->self_ordering_token)
+                                            <a href="{{ url('/s/'.$config->self_ordering_token) }}" target="_blank"
+                                               class="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                </svg>
+                                                Preview Webpage →
+                                            </a>
+                                            <a href="{{ route('settings.qr-download', $config) }}" target="_blank"
+                                               class="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                                Download QR code →
+                                            </a>
+                                            <p class="text-gray-600 text-xs font-mono">{{ url('/s/'.$config->self_ordering_token) }}</p>
+                                            @else
+                                            <p class="text-gray-600 text-xs">Save settings to generate your unique URL & QR code.</p>
+                                            @endif
+                                        </div>
+
+                                        {{-- Payment method (online ordering only) --}}
+                                        <div x-show="orderType === 'online_ordering'" x-transition
+                                             class="p-3 bg-gray-800 rounded-xl border border-gray-700">
+                                            <p class="text-xs text-gray-500 mb-2 font-medium">Payment Method</p>
+                                            <label class="flex items-center gap-2 text-sm text-gray-400 cursor-not-allowed">
+                                                <input type="checkbox" checked disabled
+                                                       class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-orange-500 opacity-60" />
+                                                Pay at counter
+                                                <span class="text-xs text-gray-600 ml-1">(default)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Right: Background --}}
+                                <div x-show="selfOrdering" x-transition>
+                                    <p class="text-xs text-gray-500 mb-3 font-medium">Background</p>
+                                    <div class="space-y-3">
+                                        {{-- Color picker --}}
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" name="bg_color"
+                                                   value="{{ $config->bg_color ?? '#111827' }}"
+                                                   class="w-8 h-8 rounded-lg border border-gray-700 bg-gray-800 cursor-pointer p-0.5" />
+                                            <span class="text-gray-500 text-xs">Background color</span>
+                                        </div>
+
+                                        {{-- Image uploads --}}
+                                        @foreach([1,2,3] as $n)
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden flex-shrink-0">
+                                                @if($config->{"bg_image_$n"})
+                                                <img src="{{ Storage::url($config->{"bg_image_$n"}) }}" class="w-full h-full object-cover" />
+                                                @else
+                                                <div class="w-full h-full flex items-center justify-center">
+                                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                    </svg>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            <label class="flex-1 flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 hover:border-orange-500 rounded-lg cursor-pointer transition text-xs text-gray-400 hover:text-white">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                                </svg>
+                                                Image {{ $n }}
+                                                <input type="file" name="bg_image_{{ $n }}" accept="image/*" class="hidden" />
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

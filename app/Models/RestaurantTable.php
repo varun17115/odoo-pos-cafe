@@ -9,7 +9,16 @@ class RestaurantTable extends Model
 {
     protected $table = 'tables';
 
-    protected $fillable = ['floor_id', 'number', 'seats', 'status'];
+    protected $fillable = ['floor_id', 'number', 'seats', 'status', 'qr_token'];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($table) {
+            if (empty($table->qr_token)) {
+                $table->qr_token = \Illuminate\Support\Str::random(8);
+            }
+        });
+    }
 
     public function floor(): BelongsTo
     {

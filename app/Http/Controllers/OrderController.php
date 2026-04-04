@@ -293,6 +293,10 @@ class OrderController extends Controller
     {
         $request->validate(['payment_method' => 'required|in:cash,card,upi']);
 
+        if ($order->status !== 'ready') {
+            return response()->json(['error' => 'Order is not ready yet. Please wait for the kitchen to complete it.'], 422);
+        }
+
         $order->update([
             'status'         => 'paid',
             'payment_method' => $request->payment_method,

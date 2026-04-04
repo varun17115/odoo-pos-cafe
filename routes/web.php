@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CustomerDisplayController;
+use App\Http\Controllers\KitchenController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FloorController;
@@ -35,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/{posConfig}', [PosConfigController::class, 'update'])->name('settings.update');
     Route::post('/settings/{posConfig}/activate', [PosConfigController::class, 'activate'])->name('settings.activate');
     Route::delete('/settings/{posConfig}', [PosConfigController::class, 'destroy'])->name('settings.destroy');
+    Route::get('/settings/{posConfig}/qr', [PosConfigController::class, 'downloadQr'])->name('settings.qr-download');
 
     // Products
     Route::resource('products', ProductController::class);
@@ -64,6 +67,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 
+    // Customer Display
+    Route::get('/customer-display', [CustomerDisplayController::class, 'show'])->name('customer.display');
+    Route::get('/customer-display/state', [CustomerDisplayController::class, 'state'])->name('customer.display.state');
+    Route::post('/customer-display/push', [CustomerDisplayController::class, 'push'])->name('customer.display.push');
+
+    // Kitchen Display
+    Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.display');
+    Route::get('/kitchen/orders', [KitchenController::class, 'orders'])->name('kitchen.orders');
+    Route::post('/kitchen/orders/{order}/items/{item}/toggle', [KitchenController::class, 'toggleItem'])->name('kitchen.item.toggle');
+    Route::post('/kitchen/orders/{order}/ready', [KitchenController::class, 'markReady'])->name('kitchen.order.ready');
+    Route::post('/kitchen/orders/{order}/preparing', [KitchenController::class, 'markPreparing'])->name('kitchen.order.preparing');
+
     // POS Session
     Route::post('/pos/session/open', [SessionController::class, 'open'])->name('pos.session.open');
     Route::post('/pos/session/{session}/close', [SessionController::class, 'close'])->name('pos.session.close');
@@ -90,3 +105,13 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Public mobile ordering — no auth required
+Route::get('/s/{token}', [\App\Http\Controllers\MobileOrderController::class, 'landing'])->name('mobile.landing');
+Route::get('/s/{token}/menu', [\App\Http\Controllers\MobileOrderController::class, 'menu'])->name('mobile.menu');
+Route::get('/s/{token}/product/{product}', [\App\Http\Controllers\MobileOrderController::class, 'product'])->name('mobile.product');
+Route::post('/s/{token}/order', [\App\Http\Controllers\MobileOrderController::class, 'placeOrder'])->name('mobile.order.place');
+Route::get('/s/{token}/order/{orderId}/confirmed', [\App\Http\Controllers\MobileOrderController::class, 'confirmed'])->name('mobile.order.confirmed');
+Route::get('/s/{token}/orders', [\App\Http\Controllers\MobileOrderController::class, 'history'])->name('mobile.order.history');
+Route::get('/s/{token}/order/{orderId}/status', [\App\Http\Controllers\MobileOrderController::class, 'status'])->name('mobile.order.status');
+Route::post('/s/{token}/order/{orderId}/pay', [\App\Http\Controllers\MobileOrderController::class, 'mobilePayOrder'])->name('mobile.order.pay');

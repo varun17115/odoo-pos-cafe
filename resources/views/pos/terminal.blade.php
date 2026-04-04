@@ -763,6 +763,15 @@ function posTerminal() {
                     quantity: 1,
                 });
             }
+            // Push live order to customer display
+            this.pushToDisplay('order', {
+                items: this.orderItems,
+                subtotal: this.subtotal,
+                tax: this.tax,
+                total: this.total,
+                status: 'pending',
+                table: this.selectedTable,
+            });
         },
 
         addVariantToOrder(variant) {
@@ -801,6 +810,7 @@ function posTerminal() {
                     });
                     this.currentOrder = { ...order, status: 'preparing' };
                     Swal.fire({ icon: 'success', title: 'Sent to Kitchen', timer: 1500, showConfirmButton: false });
+                    this.pushToDisplay('order', this.currentOrder);
                 }
             } catch(e) { console.error(e); }
         },
@@ -840,6 +850,7 @@ function posTerminal() {
             this.cashTendered = Math.ceil(this.total);
             this.isInvoice = false;
             this.paymentOpen = true;
+            this.pushToDisplay('payment', this.currentOrder);
         },
 
         async processPayment() {
@@ -848,13 +859,21 @@ function posTerminal() {
             try {
                 let order = await this.saveOrder();
                 if (!order || !order.id) throw new Error('No order');
-                const paid = await api(`/pos/orders/${order.id}/pay`, {
+                const resp = await fetch(`/pos/orders/${order.id}/pay`, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
                     body: JSON.stringify({ payment_method: this.paymentMethod }),
                 });
+                const paid = await resp.json();
+                if (!resp.ok) {
+                    Swal.fire({ icon: 'error', title: 'Cannot Process Payment', text: paid.error || 'Something went wrong.' });
+                    this.paymentProcessing = false;
+                    return;
+                }
                 this.paidOrder = paid;
                 this.paymentOpen = false;
                 this.paymentSuccess = true;
+                this.pushToDisplay('thankyou', paid);
             } catch(e) {
                 console.error(e);
                 Swal.fire({ icon: 'error', title: 'Payment failed', text: 'Please try again.' });
@@ -873,6 +892,17 @@ function posTerminal() {
             this.paidOrder = null;
             this.tab = 'table';
             if (this.activeFloorId) this.loadFloor(this.activeFloorId);
+            this.pushToDisplay('idle', null);
+        },
+
+        async pushToDisplay(scene, order) {
+            try {
+                await fetch('/customer-display/push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    body: JSON.stringify({ scene, order }),
+                });
+            } catch(e) { console.error('Display push error:', e); }
         },
 
         
