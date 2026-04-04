@@ -204,8 +204,23 @@
 
                 {{-- Notes --}}
                 <div class="px-3 pb-2 flex-shrink-0">
-                    <input x-model="customerName" type="text" placeholder="Customer name (optional)"
-                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 mb-2">
+                    <button @click="customerModalOpen = true"
+                            class="w-full flex items-center justify-between bg-gray-800 border border-gray-700 hover:border-orange-500/50 rounded-lg px-3 py-2 text-xs mb-2 transition">
+                        <span :class="customerName ? 'text-white' : 'text-gray-500'"
+                              x-text="customerName || 'Select / add customer...'"></span>
+                        <template x-if="customerId || customerName">
+                            <button @click.stop="customerId = null; customerName = ''" class="text-gray-500 hover:text-red-400 transition ml-2">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </template>
+                        <template x-if="!customerId && !customerName">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </template>
+                    </button>
                     <textarea x-model="orderNotes" rows="2" placeholder="Notes..."
                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 resize-none"></textarea>
                 </div>
@@ -484,6 +499,102 @@
             </div>
         </div>
     </div>
+    {{-- ===== CUSTOMER PICKER MODAL ===== --}}
+    <div x-show="customerModalOpen" x-transition.opacity
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md" @click.stop>
+
+            <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-800">
+                <h2 class="text-white font-bold text-base">Customer</h2>
+                <button @click="customerModalOpen = false" class="text-gray-500 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Mode tabs --}}
+            <div class="flex gap-1 px-5 pt-4">
+                <button @click="customerMode = 'select'"
+                        :class="customerMode === 'select' ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'"
+                        class="flex-1 py-2 rounded-lg text-xs font-medium transition">
+                    Existing Customer
+                </button>
+                <button @click="customerMode = 'new'"
+                        :class="customerMode === 'new' ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'"
+                        class="flex-1 py-2 rounded-lg text-xs font-medium transition">
+                    New Customer
+                </button>
+            </div>
+
+            {{-- SELECT mode --}}
+            <div x-show="customerMode === 'select'" class="px-5 py-4 space-y-3">
+                <input x-model="customerSearch" @input.debounce.300ms="searchCustomers()"
+                       type="text" placeholder="Search by name, phone or email..."
+                       class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+
+                <div class="max-h-56 overflow-y-auto space-y-1">
+                    <template x-if="customerSearchLoading">
+                        <div class="text-center text-gray-500 text-xs py-4">Searching...</div>
+                    </template>
+                    <template x-if="!customerSearchLoading && customerResults.length === 0 && customerSearch.length > 0">
+                        <div class="text-center text-gray-500 text-xs py-4">No customers found.</div>
+                    </template>
+                    <template x-for="c in customerResults" :key="c.id">
+                        <button @click="selectCustomer(c)"
+                                class="w-full flex items-center justify-between px-3 py-2.5 bg-gray-800 hover:bg-orange-500/10 hover:border-orange-500/40 border border-gray-700 rounded-xl transition text-left">
+                            <div>
+                                <p class="text-white text-sm font-medium" x-text="c.name"></p>
+                                <p class="text-gray-500 text-xs" x-text="[c.phone, c.email].filter(Boolean).join(' · ')"></p>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            {{-- NEW mode --}}
+            <div x-show="customerMode === 'new'" class="px-5 py-4 space-y-3">
+                <div>
+                    <label class="text-gray-400 text-xs mb-1 block">Full Name *</label>
+                    <input x-model="newCustomer.name" type="text" placeholder="e.g. Eric Smith"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-gray-400 text-xs mb-1 block">Email</label>
+                        <input x-model="newCustomer.email" type="email" placeholder="email@example.com"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="text-gray-400 text-xs mb-1 block">Phone</label>
+                        <input x-model="newCustomer.phone" type="text" placeholder="+91 98989 89898"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-gray-400 text-xs mb-1 block">City</label>
+                        <input x-model="newCustomer.city" type="text" placeholder="City"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="text-gray-400 text-xs mb-1 block">State</label>
+                        <input x-model="newCustomer.state" type="text" placeholder="State"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+                <button @click="createAndSelectCustomer()"
+                        :disabled="!newCustomer.name.trim()"
+                        class="w-full py-2.5 bg-orange-500 hover:bg-orange-400 disabled:opacity-40 text-white text-sm font-semibold rounded-xl transition">
+                    Create & Select
+                </button>
+            </div>
+
+        </div>
+    </div>
 
 </div>{{-- end x-data --}}
 
@@ -507,6 +618,14 @@ function posTerminal() {
         orderItems: [],
         orderNotes: '',
         customerName: '',
+        customerId: null,
+        // Customer picker
+        customerModalOpen: false,
+        customerMode: 'select', // 'select' | 'new'
+        customerSearch: '',
+        customerResults: [],
+        customerSearchLoading: false,
+        newCustomer: { name: '', email: '', phone: '', city: '', state: '', country: 'India' },
         // Orders list
         sessionOrders: [],
         ordersFilter: 'all',
@@ -604,6 +723,7 @@ function posTerminal() {
             try {
                 const order = await api(`/pos/orders/${orderId}`);
                 this.currentOrder = order;
+                this.customerId   = order.customer_id || null;
                 this.customerName = order.customer_name || '';
                 this.orderItems = (order.items || []).map(i => ({
                     id: i.id,
@@ -688,6 +808,7 @@ function posTerminal() {
         async saveOrder() {
             const payload = {
                 table_id:      this.selectedTable ? this.selectedTable.id : null,
+                customer_id:   this.customerId || null,
                 customer_name: this.customerName.trim() || null,
                 notes:         this.orderNotes,
                 items:         this.orderItems.map(i => ({
@@ -700,7 +821,6 @@ function posTerminal() {
             };
 
             if (this.currentOrder && this.currentOrder.id) {
-                // Sync updated items + customer name back to existing order
                 const updated = await api(`/pos/orders/${this.currentOrder.id}/sync`, {
                     method: 'POST',
                     body: JSON.stringify(payload),
@@ -748,6 +868,7 @@ function posTerminal() {
             this.orderItems = [];
             this.orderNotes = '';
             this.customerName = '';
+            this.customerId = null;
             this.selectedTable = null;
             this.paidOrder = null;
             this.tab = 'table';
@@ -755,6 +876,33 @@ function posTerminal() {
         },
 
         
+
+        async searchCustomers() {
+            if (!this.customerSearch.trim()) { this.customerResults = []; return; }
+            this.customerSearchLoading = true;
+            const resp = await fetch(`/customers/search?q=${encodeURIComponent(this.customerSearch)}`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            });
+            this.customerResults = await resp.json();
+            this.customerSearchLoading = false;
+        },
+
+        selectCustomer(c) {
+            this.customerId   = c.id;
+            this.customerName = c.name;
+            this.customerModalOpen = false;
+            this.customerSearch = '';
+            this.customerResults = [];
+        },
+
+        async createAndSelectCustomer() {
+            if (!this.newCustomer.name.trim()) return;
+            const resp = await api('/customers', { method: 'POST', body: JSON.stringify(this.newCustomer) });
+            if (resp.id) {
+                this.selectCustomer(resp);
+                this.newCustomer = { name: '', email: '', phone: '', city: '', state: '', country: 'India' };
+            }
+        },
 
         async draftOrder(id) {
             await api(`/pos/orders/${id}/draft`, { method: 'POST' });
@@ -792,6 +940,7 @@ function posTerminal() {
 
         loadOrderIntoRegister(order) {
             this.currentOrder = order;
+            this.customerId   = order.customer_id || null;
             this.customerName = order.customer_name || '';
             this.orderItems = (order.items || []).map(i => ({
                 id: i.id,

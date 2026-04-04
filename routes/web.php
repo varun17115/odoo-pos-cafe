@@ -1,9 +1,16 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FloorController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PosConfigController;
+use App\Http\Controllers\PosTerminalController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SessionController;
+use App\Models\PosConfig;
+use App\Models\PosSession;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,13 +18,23 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $activeConfig  = PosConfig::where('is_active', true)->first();
+    $openSession   = PosSession::where('status', 'open')->latest()->first();
+    $lastSession   = PosSession::where('status', 'closed')->latest()->first();
+    return view('dashboard', compact('activeConfig', 'openSession', 'lastSession'));
 })->middleware('auth')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Settings / POS Configs
+    Route::get('/settings', [PosConfigController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [PosConfigController::class, 'store'])->name('settings.store');
+    Route::put('/settings/{posConfig}', [PosConfigController::class, 'update'])->name('settings.update');
+    Route::post('/settings/{posConfig}/activate', [PosConfigController::class, 'activate'])->name('settings.activate');
+    Route::delete('/settings/{posConfig}', [PosConfigController::class, 'destroy'])->name('settings.destroy');
 
     // Products
     Route::resource('products', ProductController::class);
@@ -39,6 +56,37 @@ Route::middleware('auth')->group(function () {
     Route::post('/categories/reorder', [CategoryController::class, 'reorder'])->name('categories.reorder');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
+    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+
+    // POS Session
+    Route::post('/pos/session/open', [SessionController::class, 'open'])->name('pos.session.open');
+    Route::post('/pos/session/{session}/close', [SessionController::class, 'close'])->name('pos.session.close');
+
+    // POS Terminal
+    Route::get('/pos/terminal', [PosTerminalController::class, 'index'])->name('pos.terminal');
+    Route::get('/pos/floor/{floor}', [PosTerminalController::class, 'floor'])->name('pos.floor');
+    Route::get('/pos/products', [PosTerminalController::class, 'products'])->name('pos.products');
+
+    // Orders
+    Route::get('/pos/orders', [OrderController::class, 'index'])->name('pos.orders');
+    Route::get('/pos/ordersIndex', [OrderController::class, 'indexOrder'])->name('pos.indexOrder');
+    Route::get('/pos/payments', [OrderController::class, 'payments'])->name('pos.payments');
+    Route::post('/pos/orders', [OrderController::class, 'store'])->name('pos.orders.store');
+    Route::post('/pos/orders/bulk-draft', [OrderController::class, 'bulkDraft'])->name('pos.orders.bulk-draft');
+    Route::post('/pos/orders/bulk-delete', [OrderController::class, 'bulkDelete'])->name('pos.orders.bulk-delete');
+    Route::get('/pos/orders/{order}', [OrderController::class, 'show'])->name('pos.orders.show');
+    Route::post('/pos/orders/{order}/items', [OrderController::class, 'addItem'])->name('pos.orders.items.add');
+    Route::delete('/pos/orders/{order}/items/{item}', [OrderController::class, 'removeItem'])->name('pos.orders.items.remove');
+    Route::post('/pos/orders/{order}/sync', [OrderController::class, 'syncItems'])->name('pos.orders.sync');
+    Route::post('/pos/orders/{order}/send', [OrderController::class, 'send'])->name('pos.orders.send');
+    Route::post('/pos/orders/{order}/draft', [OrderController::class, 'draft'])->name('pos.orders.draft');
+    Route::post('/pos/orders/{order}/pay', [OrderController::class, 'pay'])->name('pos.orders.pay');
 });
 
 require __DIR__.'/auth.php';

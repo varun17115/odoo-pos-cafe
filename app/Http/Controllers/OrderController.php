@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PosSession;
@@ -39,7 +40,7 @@ class OrderController extends Controller
 
     private function withRelations(Order $order)
     {
-        return $order->load('items', 'table.floor');
+        return $order->load('items', 'table.floor', 'customer', 'posSession');
     }
 
     public function index()
@@ -94,6 +95,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'table_id'           => 'nullable|exists:tables,id',
+            'customer_id'        => 'nullable|exists:customers,id',
             'customer_name'      => 'nullable|string|max:100',
             'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -109,10 +111,17 @@ class OrderController extends Controller
             return response()->json(['error' => 'No active session'], 422);
         }
 
+        // If customer_id given, use their name
+        $customerName = $request->customer_name;
+        if ($request->customer_id) {
+            $customerName = Customer::find($request->customer_id)?->name ?? $customerName;
+        }
+
         $order = Order::create([
             'pos_session_id' => $session->id,
             'table_id'       => $request->table_id,
-            'customer_name'  => $request->customer_name,
+            'customer_id'    => $request->customer_id,
+            'customer_name'  => $customerName,
             'status'         => 'pending',
             'notes'          => $request->notes,
         ]);
@@ -134,6 +143,7 @@ class OrderController extends Controller
     public function syncItems(Request $request, Order $order)
     {
         $request->validate([
+            'customer_id'        => 'nullable|exists:customers,id',
             'customer_name'      => 'nullable|string|max:100',
             'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -144,12 +154,17 @@ class OrderController extends Controller
             'notes'              => 'nullable|string',
         ]);
 
+        $customerName = $request->customer_name;
+        if ($request->customer_id) {
+            $customerName = Customer::find($request->customer_id)?->name ?? $customerName;
+        }
+
         $order->update([
-            'customer_name' => $request->customer_name,
+            'customer_id'   => $request->customer_id,
+            'customer_name' => $customerName,
             'notes'         => $request->notes,
         ]);
 
-        // Replace all items with the current state
         $order->items()->delete();
         foreach ($request->items as $item) {
             $order->items()->create($this->buildItemData($item));
@@ -180,9 +195,11 @@ class OrderController extends Controller
 
     //     return view('pos.payments', compact('grouped', 'grandTotal'));
     // }
-    // {
-    //     return response()->json($this->withRelations($order));
-    // }
+
+    public function show(Order $order)
+    {
+        return response()->json($this->withRelations($order));
+    }
 
     public function addItem(Request $request, Order $order)
     {
@@ -288,6 +305,11 @@ class OrderController extends Controller
         $session    = $order->posSession;
         $totalSales = $session->orders()->where('status', 'paid')->sum('total');
         $session->update(['total_sales' => $totalSales]);
+
+        // Update customer total sales
+        if ($order->customer_id) {
+            Customer::find($order->customer_id)?->recalculateSales();
+        }
 
         return response()->json($this->withRelations($order));
     }

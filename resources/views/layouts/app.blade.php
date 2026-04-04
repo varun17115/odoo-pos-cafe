@@ -172,7 +172,7 @@
                     {{-- <a href="{{ route('pos.terminal') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">POS Terminal</a> --}}
                     
                     <a href="{{ route('pos.payments') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Payment</a>
-                    <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Customer</a>
+                    <a href="{{ route('customers.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Customer</a>
                 </div>
             </div>
         </div>
