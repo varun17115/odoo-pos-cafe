@@ -10,7 +10,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-950 font-sans antialiased min-h-screen" x-data="{ activeMenu: null, userMenu: false }">
+<body class="font-sans antialiased min-h-screen" x-data="{ activeMenu: null, userMenu: false }">
 
     {{-- ===== TOP NAVBAR ===== --}}
     <nav class="bg-gray-900 border-b border-gray-800 px-6 py-0 flex items-center h-12 relative z-50">
@@ -129,8 +129,8 @@
             <div>
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Products</p>
                 <div class="space-y-1">
-                    <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Products</a>
-                    <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Category</a>
+                    <a href="{{ route('products.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Products</a>
+                    <a href="{{ route('categories.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Category</a>
                 </div>
             </div>
         </div>

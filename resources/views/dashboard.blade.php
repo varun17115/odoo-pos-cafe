@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">POS Home</x-slot>
 
-    <div class="min-h-screen bg-gray-950 p-8">
+    <div class="min-h-screen p-8">
 
         <h2 class="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">POS Terminals</h2>
 
