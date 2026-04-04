@@ -64,6 +64,18 @@
                     </svg>
                 </button>
             </div>
+
+            {{-- Floors --}}
+            <div class="relative h-full flex items-center">
+                <button @click="activeMenu = activeMenu === 'floors' ? null : 'floors'"
+                        :class="activeMenu === 'floors' ? 'text-white border-b-2 border-orange-500' : 'text-gray-400 hover:text-white border-b-2 border-transparent'"
+                        class="h-full px-4 text-sm font-medium transition flex items-center gap-1">
+                    Floors
+                    <svg class="w-3 h-3 transition-transform" :class="activeMenu === 'floors' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         {{-- Right side: user --}}
@@ -141,6 +153,16 @@
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Reporting</p>
                 <div class="space-y-1">
                     <a href="#" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Floors Menu --}}
+        <div x-show="activeMenu === 'floors'" class="flex gap-10">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Floor Management</p>
+                <div class="space-y-1">
+                    <a href="{{ route('floors.index') }}" class="block px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition">Manage Floors & Tables</a>
                 </div>
             </div>
         </div>
