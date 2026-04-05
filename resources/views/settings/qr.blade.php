@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>QR Codes — {{ $posConfig->name }}</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="{{ asset('assets/js/qrcode.min.js') }}"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {

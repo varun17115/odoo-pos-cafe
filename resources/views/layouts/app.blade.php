@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Dashboard' }} — RestroFry</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="{{ asset('assets/css/figtree.css') }}" rel="stylesheet" />
+    <script defer src="{{ asset('assets/js/alpine.min.js') }}"></script>
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('theme', {
@@ -19,7 +18,8 @@
         });
     });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
     // Dark-themed Swal preset used everywhere
     window.Swal = Swal.mixin({
