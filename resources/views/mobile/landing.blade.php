@@ -16,12 +16,7 @@
 
             {{-- Logo / Brand --}}
             <div class="text-center pt-12">
-                <div class="w-20 h-20 bg-orange-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-2xl shadow-orange-500/30">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
-                </div>
+                <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="h-16 w-auto object-contain mx-auto mb-4" />
                 <h1 class="text-3xl font-bold text-white">{{ config('app.name') }}</h1>
                 @if($table)
                 <p class="text-orange-400 mt-2 text-sm font-medium">Table {{ $table->number }}</p>

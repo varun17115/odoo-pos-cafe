@@ -31,12 +31,7 @@
     <div class="w-56 flex-shrink-0 flex flex-col justify-between p-6 border-r border-white/5">
         {{-- Logo / Brand --}}
         <div>
-            <div class="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-orange-500/20">
-                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                </svg>
-            </div>
+            <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="h-14 w-auto object-contain mb-3" />
             <h1 class="text-white font-bold text-lg leading-tight">{{ config('app.name') }}</h1>
             @if($config)
             <p class="text-gray-500 text-xs mt-1">{{ $config->name }}</p>

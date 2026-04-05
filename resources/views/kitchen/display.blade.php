@@ -17,11 +17,7 @@
     {{-- TOP BAR --}}
     <div class="flex items-center justify-between bg-gray-900 border-b border-gray-800 px-5 h-14 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-7 h-7 bg-orange-500 rounded-md flex items-center justify-center">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
-                </svg>
-            </div>
+            <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="h-14  w-auto object-contain" />
             <span class="font-bold text-base">Kitchen Display</span>
             <span class="text-xs text-gray-500" x-text="currentTime"></span>
         </div>

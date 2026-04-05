@@ -57,14 +57,8 @@
     <nav class="bg-gray-900 border-b border-gray-800 px-6 py-0 flex items-center h-12 relative z-50">
 
         {{-- Brand --}}
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2 mr-8 flex-shrink-0">
-            <div class="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center">
-                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                          d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                </svg>
-            </div>
-            <span class="text-white font-semibold text-sm">RestroFry</span>
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 flex-shrink-0">
+            <img src="{{ asset('assets/images/logo.png') }}" alt="{{ config('app.name') }}" class="h-14 object-contain" />
         </a>
 
         {{-- Nav Items --}}
